@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "axymod",
+  "version": "${version}",
+  "name": "Axy Mod",
+  "description": "Modelo de jogador axolote (Axy): proporções customizadas, cauda e guelras, 8 skins de emoção e um painel de emotes (tecla G).\nCréditos das partes de axolote (cauda/guelras): Strippz.",
+  "authors": ["Axy Mod"],
+  "license": "MIT",
+  "icon": "assets/axymod/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.axymod.AxyMod"],
+    "client": ["com.axymod.client.AxyModClient"]
+  },
+  "mixins": ["axymod.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

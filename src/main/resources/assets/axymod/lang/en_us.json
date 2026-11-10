@@ -1,0 +1,9 @@
+{
+  "key.axymod.panel": "Open emote panel",
+  "category.axymod": "Axy Mod",
+  "screen.axymod.panel.title": "Axy Emotes",
+  "screen.axymod.panel.mode_on": "Axy mode: ON",
+  "screen.axymod.panel.mode_off": "Axy mode: OFF",
+  "screen.axymod.panel.idle": "Pick an emote",
+  "screen.axymod.panel.playing": "%s (%ss)"
+}
