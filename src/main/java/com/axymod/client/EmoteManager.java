@@ -61,8 +61,14 @@ public final class EmoteManager {
         return Math.max(0f, (a.emote().duration - (player.age - a.startAge())) / 20f);
     }
 
+    /** Skin que vale agora: a do emote que está tocando; senão a skin escolhida no painel. */
+    public static Emote skinEmote(PlayerEntity player) {
+        Emote playing = current(player, player.age);
+        return playing != Emote.NORMAL ? playing : SkinManager.chosen(player);
+    }
+
     public static Identifier skinFor(PlayerEntity player) {
-        return current(player, player.age).texture;
+        return skinEmote(player).texture;
     }
 
     private EmoteManager() {}

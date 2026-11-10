@@ -38,8 +38,11 @@ public final class AxyAnimator {
     private static final float ARM_PIVOT_Y = BODY_PIVOT_Y + 2f * ARM_Y;    // ombro (braço vanilla: pivô 2px abaixo do topo)
     // Braço fino (3px): borda interna fica 1px do pivô. Pivô vanilla X = 5.
     private static final float ARM_X_RATIO = (4f * BODY_X + 1f * ARM_X) / 5f;
-    // Pernas centradas em metade da largura do tronco. Pivô vanilla X = 1.9.
-    private static final float LEG_X_RATIO = (2f * BODY_X) / 1.9f;
+    // Pernas coladas no meio, como no Steve/Alex: o vanilla usa pivô X = 1.9 com perna de 4px (borda interna
+    // 0.1px além do centro, sem vão). Escalar o afastamento pela MESMA escala da largura da perna mantém essa
+    // proporção exata, então as pernas da Axy se encostam sem vão (antes o afastamento usava a escala do
+    // tronco, 70%, enquanto a perna ficava em 57%, deixando ~0.5px de vão no meio).
+    private static final float LEG_X_RATIO = LEG_X;
 
     private static final float VANILLA_ARM_Y = 2f;
     private static final float VANILLA_LEG_Y = 12f;

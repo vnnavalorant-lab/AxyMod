@@ -12,5 +12,10 @@ public final class AxyNetworking {
     /** Servidor avisa todos os clientes quem está transformado na Axy: [uuid do jogador][boolean transformado]. */
     public static final Identifier MORPH_S2C = new Identifier(AxyMod.MOD_ID, "morph_s2c");
 
+    /** Cliente escolhe a skin/cor sem tocar emote: [varint ordinal]. */
+    public static final Identifier SKIN_C2S = new Identifier(AxyMod.MOD_ID, "skin_c2s");
+    /** Servidor avisa todos os clientes a skin escolhida: [uuid do jogador][varint ordinal]. */
+    public static final Identifier SKIN_S2C = new Identifier(AxyMod.MOD_ID, "skin_s2c");
+
     private AxyNetworking() {}
 }

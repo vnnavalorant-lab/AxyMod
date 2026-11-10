@@ -10,5 +10,6 @@
   "command.axymod.morph.others": "%s player(s) are now Axy",
   "command.axymod.unmorph.self": "You went back to your normal form",
   "command.axymod.unmorph.others": "%s player(s) went back to their normal form",
-  "screen.axymod.panel.hint": "Run /axy morph to become Axy"
+  "screen.axymod.panel.hint": "Run /axy morph to become Axy",
+  "screen.axymod.panel.skin": "Skin / color"
 }

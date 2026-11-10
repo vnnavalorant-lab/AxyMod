@@ -10,6 +10,7 @@ import com.axymod.Emote;
 import com.axymod.client.AxyModClient;
 import com.axymod.client.EmoteManager;
 import com.axymod.client.MorphManager;
+import com.axymod.client.SkinManager;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -34,6 +35,9 @@ public class EmotePanelScreen extends Screen {
     private static final int BTN_W = 120;
     private static final int BTN_H = 24;
     private static final int LOW_H = 22;
+    private static final int SKIN_W = 26;
+    private static final int SKIN_H = 24;
+    private static final int SKIN_LABEL_H = 12;
     private static final int GAP = 4;
     private static final int COL_GAP = 8;
     private static final int PREVIEW_W = 112;
@@ -67,7 +71,7 @@ public class EmotePanelScreen extends Screen {
             0xFFFF6EC7  // silly
     };
 
-    private enum Kind { EMOTE, PRIMARY, GHOST }
+    private enum Kind { EMOTE, SKIN, PRIMARY, GHOST }
 
     private static final class Btn {
         final int x, y, w, h;
@@ -94,6 +98,8 @@ public class EmotePanelScreen extends Screen {
     private int totalW;
     private int totalH;
     private int colH;
+    private int skinLabelX;
+    private int skinLabelY;
 
     public EmotePanelScreen() {
         super(Text.translatable("screen.axymod.panel.title"));
@@ -107,7 +113,7 @@ public class EmotePanelScreen extends Screen {
         int gridW = BTN_W * COLS + GAP * (COLS - 1);
         int gridH = rows * BTN_H + (rows - 1) * GAP;
 
-        colH = gridH + GAP + LOW_H + GAP + LOW_H;
+        colH = gridH + GAP + SKIN_LABEL_H + SKIN_H + GAP + LOW_H + GAP + LOW_H;
         totalW = PREVIEW_W + COL_GAP + gridW;
         totalH = HEADER_H + colH + FOOTER_H;
         left = (this.width - totalW) / 2;
@@ -125,7 +131,18 @@ public class EmotePanelScreen extends Screen {
                     () -> AxyModClient.requestEmote(emote), this::isMorphed));
         }
 
-        int by = gy + gridH + GAP;
+        // seletor de skin/cor: muda a aparência SEM tocar o emote (os emotes com cores continuam acima)
+        skinLabelX = gx;
+        skinLabelY = gy + gridH + GAP + 2;
+        int sy = gy + gridH + GAP + SKIN_LABEL_H;
+        for (int i = 0; i < emotes.length; i++) {
+            Emote skin = emotes[i];
+            int sx = gx + i * (gridW - SKIN_W) / (emotes.length - 1);
+            buttons.add(new Btn(sx, sy, SKIN_W, SKIN_H, Text.literal(skin.displayName), Kind.SKIN, skin,
+                    () -> AxyModClient.requestSkin(skin), this::isMorphed));
+        }
+
+        int by = sy + SKIN_H + GAP;
         // liga/desliga o modo Axy usando /axy morph e /axy unmorph (o texto atualiza quando o servidor responde)
         buttons.add(new Btn(gx, by, gridW, LOW_H, Text.empty(), Kind.PRIMARY, null, () -> {
             if (this.client != null && this.client.player != null) {
@@ -153,7 +170,8 @@ public class EmotePanelScreen extends Screen {
         ClientPlayerEntity player = this.client == null ? null : this.client.player;
         boolean morphed = isMorphed();
         Emote current = player == null ? Emote.NORMAL : EmoteManager.current(player, player.age + delta);
-        int accent = ACCENTS[current.ordinal()];
+        Emote tint = player == null ? Emote.NORMAL : EmoteManager.skinEmote(player);
+        int accent = ACCENTS[tint.ordinal()];
 
         int x0 = left - PAD, y0 = top - PAD, x1 = left + totalW + PAD, y1 = top + totalH + PAD;
         int footerY = top + HEADER_H + colH;
@@ -176,7 +194,20 @@ public class EmotePanelScreen extends Screen {
             drawButton(context, b, mouseX, mouseY, current, morphed);
         }
 
+        drawSkinLabel(context, mouseX, mouseY, player);
         drawFooter(context, footerY);
+    }
+
+    private void drawSkinLabel(DrawContext context, int mouseX, int mouseY, ClientPlayerEntity player) {
+        Emote shown = SkinManager.chosen(player);
+        for (Btn b : buttons) {
+            if (b.kind == Kind.SKIN && b.enabled.getAsBoolean() && b.contains(mouseX, mouseY)) {
+                shown = b.emote;
+            }
+        }
+        Text label = Text.translatable("screen.axymod.panel.skin").append(Text.literal(": " + shown.displayName));
+        context.drawTextWithShadow(this.textRenderer, label.getString().toUpperCase(Locale.ROOT),
+                skinLabelX, skinLabelY, isMorphed() ? ACCENTS[shown.ordinal()] : TEXT_OFF);
     }
 
     private void drawHeader(DrawContext context) {
@@ -260,6 +291,21 @@ public class EmotePanelScreen extends Screen {
                 String label = b.label.getString().toUpperCase(Locale.ROOT);
                 int color = !enabled ? TEXT_OFF : (hover || playing ? accent : TEXT);
                 c.drawCenteredTextWithShadow(this.textRenderer, label, b.x + 26 + (b.w - 30) / 2, textY, color);
+            }
+            case SKIN -> {
+                int accent = ACCENTS[b.emote.ordinal()];
+                boolean selected = this.client != null && SkinManager.chosen(this.client.player) == b.emote;
+                c.fill(b.x, b.y, b.x + b.w, b.y + b.h, CELL);
+                if (hover || selected) {
+                    c.fillGradient(b.x, b.y, b.x + b.w, b.y + b.h, (accent & 0x00FFFFFF) | 0x10000000,
+                            (accent & 0x00FFFFFF) | (selected ? 0x55000000 : 0x40000000));
+                }
+                c.drawBorder(b.x, b.y, b.w, b.h, hover || selected ? accent : (enabled ? BORDER : 0xFF18181C));
+
+                // rostinho da skin (mesma textura/cor que o jogador vai usar)
+                if (!enabled) c.setShaderColor(1f, 1f, 1f, 0.35f);
+                c.drawTexture(b.emote.texture, b.x + (b.w - 16) / 2, b.y + (b.h - 16) / 2, 16, 16, 8f, 8f, 8, 8, 64, 64);
+                c.setShaderColor(1f, 1f, 1f, 1f);
             }
             case PRIMARY -> {
                 c.fill(b.x, b.y, b.x + b.w, b.y + b.h, hover ? BLUE_HOVER : BLUE);

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -44,6 +45,10 @@ public class AxyMod implements ModInitializer {
     private static final Set<UUID> MORPHED = ConcurrentHashMap.newKeySet();
     private static Path saveFile;
 
+    /** Skin escolhida por jogador (ordinal do Emote; salvo em axymod_skins.txt). Ausente = normal. */
+    private static final Map<UUID, Integer> SKINS = new ConcurrentHashMap<>();
+    private static Path skinsFile;
+
     @Override
     public void onInitialize() {
         ServerPlayNetworking.registerGlobalReceiver(AxyNetworking.EMOTE_C2S,
@@ -52,10 +57,21 @@ public class AxyMod implements ModInitializer {
                     server.execute(() -> broadcastEmote(player, Emote.byId(ordinal)));
                 });
 
-        ServerLifecycleEvents.SERVER_STARTING.register(AxyMod::loadMorphed);
+        ServerPlayNetworking.registerGlobalReceiver(AxyNetworking.SKIN_C2S,
+                (server, player, handler, buf, responseSender) -> {
+                    int ordinal = buf.readVarInt();
+                    server.execute(() -> setSkin(server, player, Emote.byId(ordinal)));
+                });
+
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            loadMorphed(server);
+            loadSkins(server);
+        });
         ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
             MORPHED.clear();
             saveFile = null;
+            SKINS.clear();
+            skinsFile = null;
         });
 
         // quem entra recebe a lista de quem já está transformado
@@ -64,6 +80,12 @@ public class AxyMod implements ModInitializer {
             for (UUID id : MORPHED) {
                 sendMorph(joined, id, true);
             }
+            // skins escolhidas: quem entra recebe as de todos, e todos recebem a de quem entrou
+            for (Map.Entry<UUID, Integer> e : SKINS.entrySet()) {
+                sendSkin(joined, e.getKey(), e.getValue());
+            }
+            Integer own = SKINS.get(joined.getUuid());
+            if (own != null) broadcastSkin(server, joined.getUuid(), own);
         });
 
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
@@ -119,6 +141,29 @@ public class AxyMod implements ModInitializer {
         ServerPlayNetworking.send(target, AxyNetworking.MORPH_S2C, out);
     }
 
+    private static void sendSkin(ServerPlayerEntity target, UUID id, int ordinal) {
+        if (!ServerPlayNetworking.canSend(target, AxyNetworking.SKIN_S2C)) return;
+        PacketByteBuf out = PacketByteBufs.create();
+        out.writeUuid(id);
+        out.writeVarInt(ordinal);
+        ServerPlayNetworking.send(target, AxyNetworking.SKIN_S2C, out);
+    }
+
+    private static void broadcastSkin(MinecraftServer server, UUID id, int ordinal) {
+        for (ServerPlayerEntity target : server.getPlayerManager().getPlayerList()) {
+            sendSkin(target, id, ordinal);
+        }
+    }
+
+    /** Muda a skin/cor do jogador sem tocar emote. Só quem está transformado na Axy pode. */
+    private static void setSkin(MinecraftServer server, ServerPlayerEntity player, Emote skin) {
+        if (!MORPHED.contains(player.getUuid())) return;
+        if (skin == Emote.NORMAL) SKINS.remove(player.getUuid());
+        else SKINS.put(player.getUuid(), skin.ordinal());
+        saveSkins();
+        broadcastSkin(server, player.getUuid(), skin.ordinal());
+    }
+
     private static void broadcastEmote(ServerPlayerEntity player, Emote emote) {
         // só quem está transformado toca emotes
         if (!MORPHED.contains(player.getUuid())) return;
@@ -151,6 +196,35 @@ public class AxyMod implements ModInitializer {
             }
         } catch (IOException e) {
             LOGGER.warn("Não consegui ler a lista de jogadores transformados", e);
+        }
+    }
+
+    private static void loadSkins(MinecraftServer server) {
+        SKINS.clear();
+        skinsFile = server.getSavePath(WorldSavePath.ROOT).resolve("axymod_skins.txt");
+        if (!Files.exists(skinsFile)) return;
+        try {
+            for (String line : Files.readAllLines(skinsFile)) {
+                String[] parts = line.trim().split("=");
+                if (parts.length != 2) continue;
+                try {
+                    SKINS.put(UUID.fromString(parts[0].trim()), Integer.parseInt(parts[1].trim()));
+                } catch (IllegalArgumentException ignored) {
+                    // linha inválida
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.warn("Não consegui ler as skins escolhidas", e);
+        }
+    }
+
+    private static void saveSkins() {
+        if (skinsFile == null) return;
+        try {
+            List<String> lines = SKINS.entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList();
+            Files.write(skinsFile, lines);
+        } catch (IOException e) {
+            LOGGER.warn("Não consegui salvar as skins escolhidas", e);
         }
     }
 

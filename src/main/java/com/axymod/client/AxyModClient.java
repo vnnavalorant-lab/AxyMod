@@ -53,9 +53,18 @@ public class AxyModClient implements ClientModInitializer {
                     client.execute(() -> MorphManager.set(uuid, morphed));
                 });
 
+        // skin/cor escolhida (sem emote) de algum jogador
+        ClientPlayNetworking.registerGlobalReceiver(AxyNetworking.SKIN_S2C,
+                (client, handler, buf, responseSender) -> {
+                    UUID uuid = buf.readUuid();
+                    int ordinal = buf.readVarInt();
+                    client.execute(() -> SkinManager.set(uuid, Emote.byId(ordinal)));
+                });
+
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
             EmoteManager.clear();
             MorphManager.clear();
+            SkinManager.clear();
         });
 
         // cauda e guelras no jogador
@@ -64,6 +73,19 @@ public class AxyModClient implements ClientModInitializer {
                 registrationHelper.register(new AxyPartsFeatureRenderer((PlayerEntityRenderer) entityRenderer));
             }
         });
+    }
+
+    /** Escolhe a skin/cor do jogador local SEM tocar emote (via servidor; sem servidor com o mod, só local). */
+    public static void requestSkin(Emote skin) {
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (mc.player == null || !MorphManager.isMorphed(mc.player)) return;
+        if (ClientPlayNetworking.canSend(AxyNetworking.SKIN_C2S)) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeVarInt(skin.ordinal());
+            ClientPlayNetworking.send(AxyNetworking.SKIN_C2S, buf);
+        } else {
+            SkinManager.set(mc.player.getUuid(), skin);
+        }
     }
 
     /** Toca um emote no jogador local (via servidor, para os outros verem; sem servidor com o mod, só local). */

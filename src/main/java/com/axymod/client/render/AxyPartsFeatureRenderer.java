@@ -1,6 +1,5 @@
 package com.axymod.client.render;
 
-import com.axymod.AxyMod;
 import com.axymod.Emote;
 import com.axymod.client.EmoteManager;
 import com.axymod.client.MorphManager;
@@ -14,14 +13,12 @@ import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 /** Desenha a cauda (presa ao tronco) e as guelras (presas à cabeça) do axolote no jogador. */
 public class AxyPartsFeatureRenderer
         extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
 
-    private static final Identifier TEXTURE = new Identifier(AxyMod.MOD_ID, "textures/axolotl_parts/axolotl_texture.png");
     private static final float HALF_PI = (float) (Math.PI / 2.0);
 
     private final ModelPart gills = AxyPartsModel.createGills();
@@ -40,7 +37,7 @@ public class AxyPartsFeatureRenderer
 
         animate(player, animationProgress, limbAngle, limbDistance);
 
-        VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE));
+        VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(EmoteManager.skinEmote(player).partsTexture));
         int overlay = LivingEntityRenderer.getOverlay(player, 0.0f);
         PlayerEntityModel<AbstractClientPlayerEntity> model = this.getContextModel();
 
