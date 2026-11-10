@@ -13,9 +13,9 @@ import net.minecraft.util.math.MathHelper;
  * <h3>Proporções (% do tamanho normal do jogador)</h3>
  * <pre>
  *   cabeça  : 90% altura / largura / profundidade
- *   tronco  : 75% altura, 70% largura, 70% profundidade
- *   braços  : 75% altura, 60% largura, 70% profundidade
- *   pernas  : 75% altura, 57% largura, 70% profundidade
+ *   tronco  : 60% altura, 70% largura, 70% profundidade
+ *   braços  : 60% altura, 60% largura, 70% profundidade
+ *   pernas  : 60% altura, 57% largura, 70% profundidade
  * </pre>
  * A escala é aplicada em cada ModelPart (em torno do pivô) e os pivôs são
  * reposicionados para as partes continuarem encaixadas e os pés no chão.
@@ -23,9 +23,11 @@ import net.minecraft.util.math.MathHelper;
 public final class AxyAnimator {
     // ---- escalas (1.0 = 100%) ----
     public static final float HEAD = 0.90f;
-    public static final float BODY_X = 0.70f, BODY_Y = 0.75f, BODY_Z = 0.70f;
-    public static final float ARM_X = 0.60f, ARM_Y = 0.75f, ARM_Z = 0.70f;
-    public static final float LEG_X = 0.57f, LEG_Y = 0.75f, LEG_Z = 0.70f;
+    // Alturas ajustadas (v1.0.2) comparando com o print da Axy de referência: tronco, braços e pernas
+    // ficam mais curtos (60%), deixando a cabeça maior em relação ao corpo, como na Axy original.
+    public static final float BODY_X = 0.70f, BODY_Y = 0.60f, BODY_Z = 0.70f;
+    public static final float ARM_X = 0.60f, ARM_Y = 0.60f, ARM_Z = 0.70f;
+    public static final float LEG_X = 0.57f, LEG_Y = 0.60f, LEG_Z = 0.70f;
 
     // ---- layout do modelo (1 unidade = 1 pixel de textura; o chão fica em y = 24) ----
     private static final float LEG_PIVOT_Y = 24f - 12f * LEG_Y;            // topo das pernas
@@ -40,8 +42,32 @@ public final class AxyAnimator {
     private static final float VANILLA_ARM_Y = 2f;
     private static final float VANILLA_LEG_Y = 12f;
 
+    // Valores vanilla que o Minecraft NÃO reaplica a cada frame (por isso precisamos restaurar nós mesmos).
+    private static final float VANILLA_ARM_X = 5f;
+    private static final float VANILLA_LEG_X = 1.9f;
+
+    /**
+     * O modelo do jogador é reaproveitado entre frames, e o vanilla só reescreve parte dos valores
+     * (pivôs X/Z da cabeça, tronco e pernas e o roll da cabeça ficam como estavam). Como o Axy mexe
+     * nesses valores, sem restaurar eles acumulavam frame a frame: pernas se fundindo no meio,
+     * cabeça se afastando/inclinando, etc. Aqui voltamos tudo para o estado vanilla antes de aplicar o Axy.
+     */
+    private static void restoreVanillaBase(PlayerEntityModel<?> m) {
+        m.head.pivotX = 0f;
+        m.head.pivotZ = 0f;
+        m.head.roll = 0f;
+        m.body.pivotX = 0f;
+        m.body.pivotZ = 0f;
+        m.body.roll = 0f;
+        m.rightArm.pivotX = -VANILLA_ARM_X;
+        m.leftArm.pivotX = VANILLA_ARM_X;
+        m.rightLeg.pivotX = -VANILLA_LEG_X;
+        m.leftLeg.pivotX = VANILLA_LEG_X;
+    }
+
     public static void apply(PlayerEntityModel<?> m, AbstractClientPlayerEntity player, float progress) {
-        if (player == null || !AxyConfig.enabled) {
+        restoreVanillaBase(m);
+        if (player == null || !MorphManager.isMorphed(player)) {
             setScales(m, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1f);
             return;
         }

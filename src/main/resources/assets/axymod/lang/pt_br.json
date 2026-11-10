@@ -5,5 +5,9 @@
   "screen.axymod.panel.mode_on": "Modo Axy: LIGADO",
   "screen.axymod.panel.mode_off": "Modo Axy: DESLIGADO",
   "screen.axymod.panel.idle": "Escolha um emote",
-  "screen.axymod.panel.playing": "%s (%ss)"
+  "screen.axymod.panel.playing": "%s (%ss)",
+  "command.axymod.morph.self": "Você virou a Axy!",
+  "command.axymod.morph.others": "%s jogador(es) viraram a Axy",
+  "command.axymod.unmorph.self": "Você voltou à sua forma normal",
+  "command.axymod.unmorph.others": "%s jogador(es) voltaram à forma normal"
 }

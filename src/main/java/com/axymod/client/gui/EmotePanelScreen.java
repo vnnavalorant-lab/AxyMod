@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.axymod.Emote;
-import com.axymod.client.AxyConfig;
 import com.axymod.client.AxyModClient;
 import com.axymod.client.EmoteManager;
+import com.axymod.client.MorphManager;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
@@ -28,6 +28,7 @@ public class EmotePanelScreen extends Screen {
     private static final int COLS = 2;
 
     private final List<ButtonWidget> emoteButtons = new ArrayList<>();
+    private ButtonWidget toggleButton;
     private int left;
     private int top;
     private int totalW;
@@ -64,10 +65,12 @@ public class EmotePanelScreen extends Screen {
         }
 
         int by = gy + gridH + GAP;
-        this.addDrawableChild(ButtonWidget.builder(toggleText(), b -> {
-            AxyConfig.enabled = !AxyConfig.enabled;
-            AxyConfig.save();
-            b.setMessage(toggleText());
+        // liga/desliga o modo Axy usando os comandos /axy morph e /axy unmorph (o texto atualiza quando o servidor responde)
+        toggleButton = this.addDrawableChild(ButtonWidget.builder(toggleText(), b -> {
+            if (this.client != null && this.client.player != null) {
+                this.client.player.networkHandler.sendChatCommand(
+                        MorphManager.isMorphed(this.client.player) ? "axy unmorph" : "axy morph");
+            }
         }).dimensions(gx, by, gridW, BTN_H).build());
 
         this.addDrawableChild(ButtonWidget.builder(Text.translatable("gui.done"), b -> this.close())
@@ -75,13 +78,19 @@ public class EmotePanelScreen extends Screen {
                 .build());
     }
 
-    private static Text toggleText() {
-        return Text.translatable(AxyConfig.enabled ? "screen.axymod.panel.mode_on" : "screen.axymod.panel.mode_off");
+    private Text toggleText() {
+        boolean on = this.client != null && MorphManager.isMorphed(this.client.player);
+        return Text.translatable(on ? "screen.axymod.panel.mode_on" : "screen.axymod.panel.mode_off");
     }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context);
+
+        // estado atual do morph: atualiza o texto do botão e libera/bloqueia os emotes
+        boolean morphed = this.client != null && MorphManager.isMorphed(this.client.player);
+        if (toggleButton != null) toggleButton.setMessage(toggleText());
+        for (ButtonWidget b : emoteButtons) b.active = morphed;
 
         // fundo do painel
         context.fill(left - 8, top - 8, left + totalW + 8, top + totalH + 8, 0xC0101018);

@@ -26,8 +26,6 @@ public class AxyModClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        AxyConfig.load();
-
         PANEL_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.axymod.panel", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, "category.axymod"));
 
@@ -47,7 +45,18 @@ public class AxyModClient implements ClientModInitializer {
                     client.execute(() -> EmoteManager.play(uuid, Emote.byId(ordinal)));
                 });
 
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> EmoteManager.clear());
+        // quem está (ou deixou de estar) transformado na Axy
+        ClientPlayNetworking.registerGlobalReceiver(AxyNetworking.MORPH_S2C,
+                (client, handler, buf, responseSender) -> {
+                    UUID uuid = buf.readUuid();
+                    boolean morphed = buf.readBoolean();
+                    client.execute(() -> MorphManager.set(uuid, morphed));
+                });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            EmoteManager.clear();
+            MorphManager.clear();
+        });
 
         // cauda e guelras no jogador
         LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
@@ -60,7 +69,7 @@ public class AxyModClient implements ClientModInitializer {
     /** Toca um emote no jogador local (via servidor, para os outros verem; sem servidor com o mod, só local). */
     public static void requestEmote(Emote emote) {
         MinecraftClient mc = MinecraftClient.getInstance();
-        if (mc.player == null) return;
+        if (mc.player == null || !MorphManager.isMorphed(mc.player)) return;
         if (ClientPlayNetworking.canSend(AxyNetworking.EMOTE_C2S)) {
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeVarInt(emote.ordinal());

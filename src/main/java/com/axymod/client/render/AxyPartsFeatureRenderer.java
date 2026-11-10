@@ -2,8 +2,8 @@ package com.axymod.client.render;
 
 import com.axymod.AxyMod;
 import com.axymod.Emote;
-import com.axymod.client.AxyConfig;
 import com.axymod.client.EmoteManager;
+import com.axymod.client.MorphManager;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
@@ -36,7 +36,7 @@ public class AxyPartsFeatureRenderer
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light,
                        AbstractClientPlayerEntity player, float limbAngle, float limbDistance, float tickDelta,
                        float animationProgress, float headYaw, float headPitch) {
-        if (!AxyConfig.enabled || player.isInvisible() || player.isSpectator()) return;
+        if (!MorphManager.isMorphed(player) || player.isInvisible() || player.isSpectator()) return;
 
         animate(player, animationProgress, limbAngle, limbDistance);
 

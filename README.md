@@ -1,6 +1,6 @@
 # Axy Mod — Fabric 1.20.1
 
-Transforma os jogadores na **Axy** (axolote): proporções customizadas, 8 skins de emoção, cauda e guelras de axolote e um **painel de emotes** (tecla **G**).
+Transforma jogadores na **Axy** (axolote) — só quem usar **/axy morph**; todo o resto continua com o modelo vanilla normal: proporções customizadas, 8 skins de emoção, cauda e guelras de axolote e um **painel de emotes** (tecla **G**).
 
 ## Como compilar
 Precisa de **JDK 17 ou superior** e internet (baixa Minecraft/Fabric na primeira vez).
@@ -15,22 +15,35 @@ Para testar direto: `./gradlew runClient`.
 
 ## Como usar
 - Instale **Fabric Loader** (>= 0.14.21) e **Fabric API** (0.92.x para 1.20.1) e coloque o `.jar` em `mods/`.
-- **G** abre o painel: lista os 8 emotes pelo nome, com o rostinho de cada um, uma prévia do seu personagem tocando o emote e o botão **Modo Axy: LIGADO/DESLIGADO**. (A tecla pode ser trocada em Controles.)
+- **/axy morph** transforma você na Axy e **/axy unmorph** volta ao normal (qualquer jogador pode usar em si mesmo).
+  Operadores (nível 2) também podem usar em outros: `/axy morph <jogadores>` e `/axy unmorph <jogadores>` (aceita @a, @p, nomes...).
+  Quem está transformado fica salvo no mundo (`axymod_morphed.txt`) e todos que têm o mod veem a transformação.
+- **G** abre o painel (os emotes só funcionam para quem está transformado; o botão do modo Axy executa os mesmos comandos): lista os 8 emotes pelo nome, com o rostinho de cada um, uma prévia do seu personagem tocando o emote e o botão **Modo Axy: LIGADO/DESLIGADO**. (A tecla pode ser trocada em Controles.)
 - Emotes: Normal, Confused, Excited, Mad, Sad, Scared, Sick, Silly. Cada um troca a skin (expressão do rosto) e toca uma animação por ~5–6 s, depois volta ao Normal.
-- Para os **outros jogadores verem** seus emotes o mod precisa estar também no servidor (em mundo single-player funciona direto). Sem o mod no servidor, o emote aparece só para você.
+- O mod precisa estar também no servidor para os comandos existirem e para os outros jogadores verem a transformação e os emotes (em mundo single-player funciona direto).
 
 ## Proporções (% do tamanho normal)
 | Parte | Altura | Largura | Profundidade |
 |---|---|---|---|
 | Cabeça | 90% | 90% | 90% |
-| Tronco | 75% | 70% | 70% |
-| Braços | 75% | 60% | 70% |
-| Pernas | 75% | 57% | 70% |
+| Tronco | 60% | 70% | 70% |
+| Braços | 60% | 60% | 70% |
+| Pernas | 60% | 57% | 70% |
 
 Os valores ficam no topo de `src/main/java/com/axymod/client/AxyAnimator.java` (constantes `HEAD`, `BODY_*`, `ARM_*`, `LEG_*`).
 
 ## Notas
 - As skins do Axy usam braços finos (Alex), então o mod força o modelo "slim".
-- O visual vale para todos os jogadores na sua tela (o botão do painel desliga). A caixa de colisão e a altura dos olhos continuam as do jogador normal.
+- O visual só vale para quem está transformado. A caixa de colisão e a altura dos olhos continuam as do jogador normal.
 - Cauda e guelras vêm do addon "Axolotl Parts" (autor: **Strippz**), convertidas do formato Bedrock para Java.
 - O pack `LONGLIVECORAL` que veio no zip do addon (texturas de coral) não foi usado.
+
+## Correção de bugs nas animações (v1.0.1)
+- O modelo do jogador é reaproveitado entre frames e o vanilla não reescreve todos os valores. O Axy
+  multiplicava/somava em cima deles a cada frame (pivô X das pernas, pivô X de cabeça/tronco, roll da cabeça),
+  então o erro acumulava: pernas se fundiam no meio, cabeça saía do lugar e ficava torta.
+  Agora `AxyAnimator.restoreVanillaBase` restaura esses valores todo frame antes de aplicar proporções e emotes.
+
+## Morph por comando (v1.1.0)
+- Antes o visual Axy valia para todos os jogadores; agora só vale para quem usou `/axy morph`.
+- Novo estado de "transformado" guardado no servidor e sincronizado com os clientes (pacote `morph_s2c`).

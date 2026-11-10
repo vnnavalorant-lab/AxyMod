@@ -9,5 +9,8 @@ public final class AxyNetworking {
     /** Servidor avisa quem está por perto: [uuid do jogador][varint ordinal]. */
     public static final Identifier EMOTE_S2C = new Identifier(AxyMod.MOD_ID, "emote_s2c");
 
+    /** Servidor avisa todos os clientes quem está transformado na Axy: [uuid do jogador][boolean transformado]. */
+    public static final Identifier MORPH_S2C = new Identifier(AxyMod.MOD_ID, "morph_s2c");
+
     private AxyNetworking() {}
 }

@@ -1,6 +1,6 @@
 package com.axymod.client.mixin;
 
-import com.axymod.client.AxyConfig;
+import com.axymod.client.MorphManager;
 import com.axymod.client.EmoteManager;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.util.Identifier;
@@ -14,14 +14,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class AbstractClientPlayerEntityMixin {
     @Inject(method = "getSkinTexture", at = @At("HEAD"), cancellable = true)
     private void axy$skin(CallbackInfoReturnable<Identifier> cir) {
-        if (AxyConfig.enabled) {
+        if (MorphManager.isMorphed((AbstractClientPlayerEntity) (Object) this)) {
             cir.setReturnValue(EmoteManager.skinFor((AbstractClientPlayerEntity) (Object) this));
         }
     }
 
     @Inject(method = "getModel", at = @At("HEAD"), cancellable = true)
     private void axy$model(CallbackInfoReturnable<String> cir) {
-        if (AxyConfig.enabled) {
+        if (MorphManager.isMorphed((AbstractClientPlayerEntity) (Object) this)) {
             cir.setReturnValue("slim");
         }
     }

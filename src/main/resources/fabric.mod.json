@@ -3,7 +3,7 @@
   "id": "axymod",
   "version": "${version}",
   "name": "Axy Mod",
-  "description": "Modelo de jogador axolote (Axy): proporções customizadas, cauda e guelras, 8 skins de emoção e um painel de emotes (tecla G).\nCréditos das partes de axolote (cauda/guelras): Strippz.",
+  "description": "Modelo de jogador axolote (Axy): proporções customizadas, cauda e guelras, 8 skins de emoção e um painel de emotes (tecla G). Use /axy morph e /axy unmorph para virar a Axy ou voltar ao normal.\nCréditos das partes de axolote (cauda/guelras): Strippz.",
   "authors": ["Axy Mod"],
   "license": "MIT",
   "icon": "assets/axymod/icon.png",
