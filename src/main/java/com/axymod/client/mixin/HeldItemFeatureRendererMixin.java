@@ -13,6 +13,7 @@ public class HeldItemFeatureRendererMixin {
     @Inject(method = "renderItem", at = @At("HEAD"))
     private void axy$itemStart(CallbackInfo ci) {
         AxyRenderState.suppressScale = true;
+        AxyRenderState.heldShifted = false;
     }
 
     @Inject(method = "renderItem", at = @At("RETURN"))

@@ -5,6 +5,8 @@ import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Arm;
 import net.minecraft.util.math.MathHelper;
 
 /**
@@ -82,6 +84,34 @@ public final class AxyAnimator {
             syncOverlays(m);
         }
         setScales(m, HEAD, HEAD, HEAD, BODY_X, BODY_Y, BODY_Z, ARM_X, ARM_Y, ARM_Z, LEG_X, LEG_Y, LEG_Z);
+    }
+
+    // ------------------------------------------------------------------ itens, elytra e agachar
+
+    /**
+     * Deslocamento vertical do modelo quando o jogador transformado está agachado (em blocos).
+     * O vanilla usa -0.125, o que afundaria as pernas curtas da Axy no chão; por isso aqui é 0.
+     * Se os pés ficarem flutuando, use um valor entre -0.125 e 0 (ex.: -0.05f).
+     */
+    public static final float SNEAK_OFFSET_Y = 0f;
+
+    /**
+     * O item na mão é posicionado no vanilla a 10px (0.625) abaixo do ombro, onde ficaria a mão do braço
+     * normal. Como o braço da Axy é mais curto, sobe o item na mesma proporção para ficar na mão dela.
+     */
+    public static void shiftHeldItem(PlayerEntityModel<?> m, Arm arm, MatrixStack matrices) {
+        if (AxyRenderState.heldShifted) return;
+        ModelPart part = arm == Arm.RIGHT ? m.rightArm : m.leftArm;
+        float sy = ((AxyScalable) (Object) part).axy$scaleY();
+        if (sy == 1f) return;
+        matrices.translate(0f, -0.625f * (1f - sy), 0f);
+        AxyRenderState.heldShifted = true;
+    }
+
+    /** Elytra e capa são desenhadas a partir do topo do tronco vanilla; leva para o tronco (menor) da Axy. */
+    public static void bodyAttachTransform(MatrixStack matrices) {
+        matrices.translate(0f, BODY_PIVOT_Y / 16f, 0f);
+        matrices.scale(BODY_X, BODY_Y, BODY_Z);
     }
 
     // ------------------------------------------------------------------ layout

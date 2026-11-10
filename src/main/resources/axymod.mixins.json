@@ -6,6 +6,8 @@
   "client": [
     "AbstractClientPlayerEntityMixin",
     "BipedEntityModelMixin",
+    "CapeFeatureRendererMixin",
+    "ElytraFeatureRendererMixin",
     "HeldItemFeatureRendererMixin",
     "ModelPartMixin",
     "PlayerEntityModelMixin",

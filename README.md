@@ -47,3 +47,14 @@ Os valores ficam no topo de `src/main/java/com/axymod/client/AxyAnimator.java` (
 ## Morph por comando (v1.1.0)
 - Antes o visual Axy valia para todos os jogadores; agora só vale para quem usou `/axy morph`.
 - Novo estado de "transformado" guardado no servidor e sincronizado com os clientes (pacote `morph_s2c`).
+
+## Ajustes v1.1.1
+- **Itens na mão**: o vanilla coloca o item a 10px do ombro (mão do braço normal). Como o braço da Axy é mais curto, o item agora sobe na mesma proporção (`AxyAnimator.shiftHeldItem`).
+- **Elytra e capa**: eram desenhadas a partir do tronco vanilla (maior e mais alto). Agora são deslocadas e escaladas junto com o tronco da Axy (`AxyAnimator.bodyAttachTransform`).
+- **Agachar**: o vanilla abaixa o modelo 2px ao agachar, o que enterrava as pernas curtas no chão. Isso foi zerado para quem está transformado (`AxyAnimator.SNEAK_OFFSET_Y`; se os pés flutuarem, use algo entre -0.125 e 0).
+
+## Novo visual do painel (v1.2.0)
+- Painel de emotes redesenhado: fundo preto com linhas de grade finas, título pixelado colorido, botão azul de destaque para o modo Axy
+  e brilho da cor do emote (inspirado no site do Essential), mantendo a prévia do personagem e o rostinho de cada emote.
+- Logo da Scute AI no cabeçalho e no rodapé (`assets/axymod/textures/gui/scute_logo_*.png`).
+- Cores de cada emote e do tema ficam no topo de `EmotePanelScreen.java`.

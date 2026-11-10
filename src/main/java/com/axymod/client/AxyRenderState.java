@@ -7,5 +7,8 @@ public final class AxyRenderState {
     /** true enquanto itens na mão são posicionados (para o item não ser achatado pela escala do braço). */
     public static boolean suppressScale = false;
 
+    /** true depois que a posição do item na mão já foi corrigida nesta chamada de renderItem. */
+    public static boolean heldShifted = false;
+
     private AxyRenderState() {}
 }
