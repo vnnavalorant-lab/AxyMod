@@ -23,7 +23,7 @@ public class CapeFeatureRendererMixin {
     private void axy$start(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, AbstractClientPlayerEntity entity,
                            float limbAngle, float limbDistance, float tickDelta, float animationProgress,
                            float headYaw, float headPitch, CallbackInfo ci) {
-        axy$pushed = entity instanceof AbstractClientPlayerEntity p && MorphManager.isMorphed(p);
+        axy$pushed = MorphManager.isMorphed(entity);
         if (axy$pushed) {
             matrices.push();
             AxyAnimator.bodyAttachTransform(matrices);
