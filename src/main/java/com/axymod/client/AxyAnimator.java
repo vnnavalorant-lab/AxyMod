@@ -17,7 +17,7 @@ import net.minecraft.util.math.MathHelper;
  *   cabeça  : 90% altura / largura / profundidade
  *   tronco  : 60% altura, 70% largura, 70% profundidade
  *   braços  : 60% altura, 60% largura, 70% profundidade
- *   pernas  : 60% altura, 57% largura, 70% profundidade
+ *   pernas  : 70% altura, 75% largura, 70% profundidade
  * </pre>
  * A escala é aplicada em cada ModelPart (em torno do pivô) e os pivôs são
  * reposicionados para as partes continuarem encaixadas e os pés no chão.
@@ -25,11 +25,13 @@ import net.minecraft.util.math.MathHelper;
 public final class AxyAnimator {
     // ---- escalas (1.0 = 100%) ----
     public static final float HEAD = 0.90f;
+    // Pernas (v1.2.1): medidas no print de referência — altura ~70% (pés a ~8,3px de textura do tronco) e largura 75%
+    // (as duas pernas juntas ficam com a mesma largura do tronco), coladas no meio e com o pé no chão.
     // Alturas ajustadas (v1.0.2) comparando com o print da Axy de referência: tronco, braços e pernas
     // ficam mais curtos (60%), deixando a cabeça maior em relação ao corpo, como na Axy original.
     public static final float BODY_X = 0.70f, BODY_Y = 0.60f, BODY_Z = 0.70f;
     public static final float ARM_X = 0.60f, ARM_Y = 0.60f, ARM_Z = 0.70f;
-    public static final float LEG_X = 0.57f, LEG_Y = 0.60f, LEG_Z = 0.70f;
+    public static final float LEG_X = 0.75f, LEG_Y = 0.70f, LEG_Z = 0.70f;
 
     // ---- layout do modelo (1 unidade = 1 pixel de textura; o chão fica em y = 24) ----
     private static final float LEG_PIVOT_Y = 24f - 12f * LEG_Y;            // topo das pernas
@@ -41,7 +43,7 @@ public final class AxyAnimator {
     // Pernas coladas no meio, como no Steve/Alex: o vanilla usa pivô X = 1.9 com perna de 4px (borda interna
     // 0.1px além do centro, sem vão). Escalar o afastamento pela MESMA escala da largura da perna mantém essa
     // proporção exata, então as pernas da Axy se encostam sem vão (antes o afastamento usava a escala do
-    // tronco, 70%, enquanto a perna ficava em 57%, deixando ~0.5px de vão no meio).
+    // tronco, 70%, enquanto a perna ficava mais fina, deixando um vão no meio).
     private static final float LEG_X_RATIO = LEG_X;
 
     private static final float VANILLA_ARM_Y = 2f;

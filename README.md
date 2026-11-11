@@ -28,7 +28,7 @@ Para testar direto: `./gradlew runClient`.
 | Cabeça | 90% | 90% | 90% |
 | Tronco | 60% | 70% | 70% |
 | Braços | 60% | 60% | 70% |
-| Pernas | 60% | 57% | 70% |
+| Pernas | 70% | 75% | 70% |
 
 Os valores ficam no topo de `src/main/java/com/axymod/client/AxyAnimator.java` (constantes `HEAD`, `BODY_*`, `ARM_*`, `LEG_*`).
 
@@ -58,3 +58,6 @@ Os valores ficam no topo de `src/main/java/com/axymod/client/AxyAnimator.java` (
   e brilho da cor do emote (inspirado no site do Essential), mantendo a prévia do personagem e o rostinho de cada emote.
 - Logo da Scute AI no cabeçalho e no rodapé (`assets/axymod/textures/gui/scute_logo_*.png`).
 - Cores de cada emote e do tema ficam no topo de `EmotePanelScreen.java`.
+
+## Pernas (v1.2.1)
+- Pernas ajustadas conforme o print de referência: **70% de altura, 75% de largura** (antes 60% / 57%). As duas pernas juntas ficam com a largura do tronco, coladas no meio e com os pés no chão; o tronco e a cabeça sobem junto porque o layout é calculado a partir de `LEG_Y`.
