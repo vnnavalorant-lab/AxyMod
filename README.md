@@ -26,9 +26,9 @@ Para testar direto: `./gradlew runClient`.
 | Parte | Altura | Largura | Profundidade |
 |---|---|---|---|
 | Cabeça | 90% | 90% | 90% |
-| Tronco | 60% | 70% | 70% |
-| Braços | 60% | 60% | 70% |
-| Pernas | 70% | 75% | 70% |
+| Tronco | 69% | 71% | 70% |
+| Braços | 59% | 71% | 70% |
+| Pernas | 57% | 73% | 70% |
 
 Os valores ficam no topo de `src/main/java/com/axymod/client/AxyAnimator.java` (constantes `HEAD`, `BODY_*`, `ARM_*`, `LEG_*`).
 
@@ -61,3 +61,8 @@ Os valores ficam no topo de `src/main/java/com/axymod/client/AxyAnimator.java` (
 
 ## Pernas (v1.2.1)
 - Pernas ajustadas conforme o print de referência: **70% de altura, 75% de largura** (antes 60% / 57%). As duas pernas juntas ficam com a largura do tronco, coladas no meio e com os pés no chão; o tronco e a cabeça sobem junto porque o layout é calculado a partir de `LEG_Y`.
+
+## Proporções v1.2.2
+- Proporções refeitas a partir de medições pixel a pixel do print de referência (cabeça = 62px = 90%): o tronco é o maior segmento do corpo (~71px), braços ~60px e pernas ~59px.
+  Antes o tronco estava curto demais (60%) e as pernas compridas demais (70%); os braços também estavam finos demais (60% → 71% de largura).
+- Novo `HEAD_SINK` (0,25): a cabeça entra um pouquinho no tronco, como na referência.

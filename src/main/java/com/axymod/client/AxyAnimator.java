@@ -15,9 +15,9 @@ import net.minecraft.util.math.MathHelper;
  * <h3>Proporções (% do tamanho normal do jogador)</h3>
  * <pre>
  *   cabeça  : 90% altura / largura / profundidade
- *   tronco  : 60% altura, 70% largura, 70% profundidade
- *   braços  : 60% altura, 60% largura, 70% profundidade
- *   pernas  : 70% altura, 75% largura, 70% profundidade
+ *   tronco  : 69% altura, 71% largura, 70% profundidade
+ *   braços  : 59% altura, 71% largura, 70% profundidade
+ *   pernas  : 57% altura, 73% largura, 70% profundidade
  * </pre>
  * A escala é aplicada em cada ModelPart (em torno do pivô) e os pivôs são
  * reposicionados para as partes continuarem encaixadas e os pés no chão.
@@ -25,13 +25,17 @@ import net.minecraft.util.math.MathHelper;
 public final class AxyAnimator {
     // ---- escalas (1.0 = 100%) ----
     public static final float HEAD = 0.90f;
-    // Pernas (v1.2.1): medidas no print de referência — altura ~70% (pés a ~8,3px de textura do tronco) e largura 75%
-    // (as duas pernas juntas ficam com a mesma largura do tronco), coladas no meio e com o pé no chão.
-    // Alturas ajustadas (v1.0.2) comparando com o print da Axy de referência: tronco, braços e pernas
-    // ficam mais curtos (60%), deixando a cabeça maior em relação ao corpo, como na Axy original.
-    public static final float BODY_X = 0.70f, BODY_Y = 0.60f, BODY_Z = 0.70f;
-    public static final float ARM_X = 0.60f, ARM_Y = 0.60f, ARM_Z = 0.70f;
-    public static final float LEG_X = 0.75f, LEG_Y = 0.70f, LEG_Z = 0.70f;
+    // v1.2.2: proporções medidas pixel a pixel no print de referência (cabeça = 62px = 90%):
+    //   tronco 71px de altura (o MAIOR segmento do corpo), braços ~60px, pernas ~59px;
+    //   tronco, braços e pernas com ~49px / ~18px / ~25px de largura cada.
+    // (Antes o tronco estava curto demais (60%) e as pernas compridas demais (70%).)
+    // Profundidades (Z) não aparecem de frente e ficam em 70%.
+    public static final float BODY_X = 0.71f, BODY_Y = 0.69f, BODY_Z = 0.70f;
+    public static final float ARM_X = 0.71f, ARM_Y = 0.59f, ARM_Z = 0.70f;
+    // As duas pernas juntas (7,8 * LEG_X) ficam com a mesma largura do tronco (8 * BODY_X).
+    public static final float LEG_X = 0.73f, LEG_Y = 0.57f, LEG_Z = 0.70f;
+    /** A cabeça "afunda" um pouco no tronco (em unidades de textura), como na referência. */
+    public static final float HEAD_SINK = 0.25f;
 
     // ---- layout do modelo (1 unidade = 1 pixel de textura; o chão fica em y = 24) ----
     private static final float LEG_PIVOT_Y = 24f - 12f * LEG_Y;            // topo das pernas
@@ -122,7 +126,7 @@ public final class AxyAnimator {
     // ------------------------------------------------------------------ layout
 
     private static void reposition(PlayerEntityModel<?> m) {
-        m.head.pivotY = HEAD_PIVOT_Y + m.head.pivotY * BODY_Y;
+        m.head.pivotY = HEAD_PIVOT_Y + HEAD_SINK + m.head.pivotY * BODY_Y;
         m.body.pivotY = BODY_PIVOT_Y + m.body.pivotY * BODY_Y;
 
         m.rightArm.pivotX *= ARM_X_RATIO;
